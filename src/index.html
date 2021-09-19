@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <title>Hello World!</title>
   <link rel="stylesheet" href="index.css">
-  <script src="./renderer.js" defer></script>
 </head>
 
 <body>
@@ -113,10 +112,16 @@
               <option value="Male">Male</option>
               <option value="Female">Female</option>
             </select>
-            <button id="submit" type="submit">
-              <i class="fab fa-github-alt"></i>
-              <h3>register</h3>
-            </button>
+            <div class="buttons">
+              <button id="submit" type="submit">
+                <i class="fab fa-github-alt"></i>
+                <h3>register</h3>
+              </button>
+              <button id="reset">
+                <i class="fas fa-times"></i>
+                <h3>reset</h3>
+              </button>
+            </div>
           </form>
         </div>
   
@@ -133,6 +138,7 @@
   </div>
 </body>
 <footer>
+  <script src="./renderer.js" defer></script>
   <script src="./js/fontawesome.js" crossorigin="anonymous"></script>
   <script src="./js/three.min.js"></script>
   <script src="./js/vanta.dots.min.js"></script>

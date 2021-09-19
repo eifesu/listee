@@ -11,6 +11,8 @@ const major = document.querySelector('#major');
 const phone = document.querySelector('#phone');
 
 const submitBtn = document.querySelector('#submit');
+const resetBtn = document.querySelector('#reset')
+
 
 // Member list from the DOM
 const list = document.querySelector('.members')
@@ -39,6 +41,7 @@ const init = () => {
             console.log(array);
             unfreeze();
             render();
+            reset();
 
         }
 
@@ -138,7 +141,7 @@ function submit(e) {
 
 function remove(e) {
     e.preventDefault();
-    let data = e.target.getAttribute("data");
+    let data = e.currentTarget.getAttribute("data");
     if (window.confirm(`Do you want to delete ID ${data}`)) {
         kick(data);
         notify("success", `Successfully deleted ID ${data}!`)
@@ -146,10 +149,10 @@ function remove(e) {
 
 }
 
-function edit(e) {
+async function edit(e) {
     console.log("Edit function called !")
     e.preventDefault(e);
-    let data = e.target.getAttribute('data');
+    let data = e.currentTarget.getAttribute('data');
     let student = array.find((student) => student.id == data)
 
     first.value = student.first;
@@ -171,11 +174,16 @@ const bind = () => {
 
     // Binding the functions to the buttons
     submitBtn.addEventListener("click", submit);
+    resetBtn.addEventListener("click", reset);
     editBtn.forEach(btn => btn.addEventListener("click", edit));
-    removeBtn.forEach(btn => btn.addEventListener("click", remove))
+    removeBtn.forEach(btn => btn.addEventListener("click", remove));
+    
 }
 
-const reset = () => {
+function reset(e) {
+    if(e) {
+        e.preventDefault();
+    }
     first.value = ``;
     last.value = ``;
     id.value = '';
