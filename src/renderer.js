@@ -1,8 +1,14 @@
-
 const fs = require('fs');
+
+// WhatsApp Imports
+const {
+    Client
+} = require('whatsapp-web.js');
+const qrcode = require("qrcode-terminal");
+
+// DOM Elements Imports
 const loader = document.querySelector('.loader');
 const content = document.querySelector('.content');
-
 const first = document.querySelector('#first');
 const last = document.querySelector('#last');
 const id = document.querySelector('#id');
@@ -10,9 +16,43 @@ const gender = document.querySelector('#gender')
 const major = document.querySelector('#major');
 const phone = document.querySelector('#phone');
 
+// DOM Button Imports
 const submitBtn = document.querySelector('#submit');
 const resetBtn = document.querySelector('#reset')
 
+
+// WhatsApp Client
+
+// Path where the session data will be stored
+const SESSION_FILE_PATH = './session.json';
+
+// Load the session data if it has been previously saved
+
+const client = new Client();
+
+client.on('qr', (qr) => {
+    // Generate and scan this code with your phone
+    qrcode.generate(qr, {
+        small: true
+    });
+});
+
+client.on('ready', async() => {
+    console.log('Client is ready!');
+    init();
+
+});
+
+client.on('message', msg => {
+    if (msg.body == '!ping') {
+        msg.reply('pong');
+    }
+});
+
+client.initialize();
+
+
+console.log("Test");
 
 // Member list from the DOM
 const list = document.querySelector('.members')
@@ -21,6 +61,7 @@ const list = document.querySelector('.members')
 const alert = document.querySelector('.alert');
 let array = [];
 
+// FUNCTIONS
 const unfreeze = () => {
     content.style.display = 'flex';
     loader.style.display = 'none';
@@ -33,7 +74,7 @@ const freeze = () => {
 
 const init = () => {
     console.log('Initializing the script !')
-    // Reading the file 
+        // Reading the file 
     fs.readFile('./db.json', (err, data) => {
         if (err) throw err;
         else {
@@ -53,7 +94,7 @@ const init = () => {
 
 const render = () => {
     console.log('Rendering changes !')
-    // Cleaning the list 
+        // Cleaning the list 
     list.textContent = ``;
     // Rendering the elements of the array...
     for (const element of array) {
@@ -100,6 +141,7 @@ const insert = () => {
         phone: phone.value.trim(),
         gender: gender.value.trim(),
         timestamp: Date.now().toString(),
+
     }
 
     array.push(student);
@@ -117,7 +159,19 @@ const kick = (id) => {
     render();
 }
 
+async function invite(number) {
+    console.log(number);
+    const sanitized_number = number.toString().replace(/[- )(]/g, ""); // remove unnecessary chars from the number
+    const final_number = `225${sanitized_number.substring(sanitized_number.length - 10)}`; // add 91 before the number here 91 is country code of India
 
+    const number_details = await client.getNumberId(final_number); // get mobile number details
+
+    if (number_details) {
+        const sendMessageData = await client.sendMessage(number_details._serialized, "This is an automated message sent from the club software ! Welcome to the club ! Join us "); // send message
+    } else {
+        console.log(final_number, "Mobile number is not registered");
+    }
+}
 // Button handlers
 function submit(e) {
     console.log("Submit function called !")
@@ -125,17 +179,16 @@ function submit(e) {
 
     if (!(first.value && last.value && id.value && major.value && phone.value && gender.value)) {
         notify("error", "Please fill all the fields !")
-    }
-    else if (array.find((element) => element.id == id.value)) {
+    } else if (array.find((element) => element.id == id.value)) {
         notify("error", "A student with that ID already exists !")
         if (window.confirm(`Do you want to overwrite ID ${id.value}`)) {
             update(id.value)
             notify("success", `Successfully updated ID ${id.value}!`)
         }
-    }
-    else {
+    } else {
         insert();
         notify("success", `Successfully added ${last.value}!`)
+        invite(phone.value);
     }
 }
 
@@ -167,7 +220,7 @@ async function edit(e) {
 const bind = () => {
 
     console.log("Binding buttons !")
-    // Grabbing the buttons
+        // Grabbing the buttons
     const editBtn = document.querySelectorAll('#edit');
     const removeBtn = document.querySelectorAll('#remove');
 
@@ -177,11 +230,11 @@ const bind = () => {
     resetBtn.addEventListener("click", reset);
     editBtn.forEach(btn => btn.addEventListener("click", edit));
     removeBtn.forEach(btn => btn.addEventListener("click", remove));
-    
+
 }
 
 function reset(e) {
-    if(e) {
+    if (e) {
         e.preventDefault();
     }
     first.value = ``;
@@ -194,9 +247,15 @@ function reset(e) {
 const notify = (type, msg) => {
     let color = '';
     switch (type) {
-        case "success": color = '#007236'; break;
-        case "error": color = '#962222'; break;
-        case "info": color = '#5f5cc7'; break;
+        case "success":
+            color = '#007236';
+            break;
+        case "error":
+            color = '#962222';
+            break;
+        case "info":
+            color = '#5f5cc7';
+            break;
     }
 
     alert.style.backgroundColor = color;
@@ -215,12 +274,8 @@ function save() {
     fs.writeFile('./db.json', data, (err) => {
         if (err) {
             console.log(err);
-        }
-        else {
+        } else {
             console.log("Successfully saved array to memory")
         }
     })
 }
-
-init();
-
