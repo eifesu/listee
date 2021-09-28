@@ -1,10 +1,7 @@
 const fs = require('fs');
+const client = require('./client')
+    // WhatsApp Imports
 
-// WhatsApp Imports
-const {
-    Client
-} = require('whatsapp-web.js');
-const qrcode = require("qrcode-terminal");
 
 // DOM Elements Imports
 const loader = document.querySelector('.loader');
@@ -19,37 +16,6 @@ const phone = document.querySelector('#phone');
 // DOM Button Imports
 const submitBtn = document.querySelector('#submit');
 const resetBtn = document.querySelector('#reset')
-
-
-// WhatsApp Client
-
-// Path where the session data will be stored
-const SESSION_FILE_PATH = './session.json';
-
-// Load the session data if it has been previously saved
-
-const client = new Client();
-
-client.on('qr', (qr) => {
-    // Generate and scan this code with your phone
-    qrcode.generate(qr, {
-        small: true
-    });
-});
-
-client.on('ready', async() => {
-    console.log('Client is ready!');
-    init();
-
-});
-
-client.on('message', msg => {
-    if (msg.body == '!ping') {
-        msg.reply('pong');
-    }
-});
-
-client.initialize();
 
 
 console.log("Test");
